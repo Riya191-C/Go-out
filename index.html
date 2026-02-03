@@ -1,452 +1,548 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoppa Night Planner - Peacock Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES --- */
+        :root {
+            /* Peacock Blue Palette */
+            --hp-brand: #0891b2;       /* Deep Peacock Cyan */
+            --hp-brand-glow: #22d3ee;  /* Bright Cyan Glow */
+            --hp-night: #0f172a;       /* Deep Midnight Blue */
+            --hp-night-dark: #020617;  /* Darker background */
+            --hp-glass: rgba(30, 41, 59, 0.7); /* Glassy background */
+            --hp-border: rgba(255, 255, 255, 0.1);
+            --ticket-paper: #ffffff;
+            --text-light: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* CONTAINER */
+        .hp-widget {
+            width: 100%;
+            max-width: 1090px;
+            margin: 0 auto;
+            background: var(--hp-night); /* Dark Background */
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(8, 145, 178, 0.25); /* Subtle Peacock shadow */
+            border: 1px solid var(--hp-border);
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HEADER - PEACOCK AURORA EFFECT */
+        .hp-header {
+            position: relative;
+            /* Changed to Peacock Gradient (Teal/Blue/Dark) */
+            background: radial-gradient(circle at 50% -20%, #155e75 0%, #0f172a 60%, #020617 100%);
+            padding: 50px 30px 60px 30px;
+            text-align: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--hp-border);
+        }
+
+        /* ANIMATED STARS */
+        .hp-stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .s-layer {
+            position: absolute; width: 100%; height: 100%;
+            background-repeat: repeat;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        .s-1 {
+            background-image: radial-gradient(1.5px 1.5px at 50px 100px, #fff, transparent), radial-gradient(1.5px 1.5px at 300px 200px, #fff, transparent);
+            background-size: 500px 500px;
+            animation: float 60s reverse infinite;
+            opacity: 0.6;
+        }
+        .s-2 {
+            /* Changed glow color to Cyan */
+            background-image: radial-gradient(2px 2px at 150px 50px, #67e8f9, transparent), radial-gradient(2px 2px at 400px 150px, #fff, transparent);
+            background-size: 400px 400px;
+            animation: float 80s linear infinite;
+            opacity: 0.8;
+        }
+        @keyframes float {
+            from { background-position: 0 0; }
+            to { background-position: 1000px 0; }
+        }
+
+        .hp-head-content { position: relative; z-index: 10; }
+        
+        .hp-title {
+            font-size: 32px;
+            font-weight: 800; margin: 0 0 10px 0;
+            background: linear-gradient(to bottom, #ffffff, #cbd5e1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .hp-desc { font-size: 16px; color: #94a3b8; max-width: 550px; margin: 0 auto; line-height: 1.5; font-weight: 400; }
+
+        /* LANGUAGE SWITCH */
+        .lang-bar {
+            position: absolute; top: 20px; right: 20px; z-index: 20;
+            display: flex; gap: 8px;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 20px;
+            cursor: pointer; font-size: 11px; font-weight: 700; transition: 0.3s;
+        }
+        .lang-btn:hover, .lang-btn.active { background: var(--hp-brand); color: white; border-color: var(--hp-brand); }
+
+        /* BODY LAYOUT */
+        .hp-body {
+            padding: 40px;
+            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px;
+        }
+
+        /* --- CONTROLS SECTION --- */
+        .controls { display: flex; flex-direction: column; gap: 30px; }
+
+        .section-label {
+            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+            color: var(--hp-brand); margin-bottom: 15px; display: block;
+        }
+
+        .hp-nav-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px;
+        }
+
+        .hp-card {
+            background: var(--hp-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--hp-border);
+            border-radius: 14px;
+            padding: 15px 10px;
+            cursor: pointer; text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hp-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .hp-card.active {
+            background: var(--hp-brand);
+            border-color: var(--hp-brand-glow);
+            transform: translateY(-6px);
+            /* Peacock Blue Glow */
+            box-shadow: 0 15px 20px -5px rgba(8, 145, 178, 0.4);
+        }
+        .hp-card.active .hp-icon { filter: grayscale(0) brightness(2); }
+        .hp-card.active .hp-card-title { color: white; }
+
+        .hp-icon { font-size: 24px; margin-bottom: 6px; filter: grayscale(1); transition: 0.3s; }
+        .hp-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; transition: color 0.3s; }
+
+        /* INPUTS */
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        
+        input {
+            width: 100%; padding: 14px; 
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hp-border); border-radius: 10px;
+            color: white; font-family: 'Open Sans', sans-serif; font-size: 14px;
+            outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--hp-brand); background: rgba(255, 255, 255, 0.1); }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }
+
+        .custom-input { display: none; margin-top: 15px; }
+        .custom-input.show { display: block; }
+
+        /* --- TICKET SECTION --- */
+        .ticket-wrapper {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            perspective: 1000px;
+        }
+
+        .ticket {
+            width: 100%; max-width: 380px;
+            background: var(--ticket-paper);
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            color: var(--hp-night);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .ticket-top {
+            background: var(--hp-night);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+            border-bottom: 2px dashed rgba(255,255,255,0.2);
+            position: relative;
+        }
+        /* Cutouts */
+        .ticket-top::before, .ticket-top::after {
+            content: ''; position: absolute; bottom: -10px; width: 20px; height: 20px; background: var(--hp-night); border-radius: 50%;
+        }
+        .ticket-top::before { left: -10px; }
+        .ticket-top::after { right: -10px; }
+
+        .ticket-content { padding: 30px; text-align: center; position: relative; }
+
+        .hp-badge {
+            display: inline-block; background: #ecfeff; color: var(--hp-brand);
+            border: 1px solid var(--hp-brand);
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
+            padding: 6px 14px; border-radius: 30px; margin-bottom: 15px;
+        }
+
+        .t-title { font-size: 28px; font-weight: 800; margin: 0 0 5px 0; color: var(--hp-night); line-height: 1.1; }
+        .t-emoji { font-size: 40px; display: block; margin-bottom: 10px; }
+
+        .ticket-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            border-top: 2px dashed #e2e8f0; padding-top: 20px; margin-top: 20px; text-align: left;
+        }
+        .t-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .t-val { font-size: 14px; color: var(--hp-night); font-weight: 700; margin-top: 4px; }
+
+        /* STAMP */
+        .stamp {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(2);
+            border: 3px solid var(--hp-brand); color: var(--hp-brand);
+            padding: 10px 30px; font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px;
+            border-radius: 8px; opacity: 0; pointer-events: none;
+            background: rgba(255,255,255,0.9); mix-blend-mode: multiply;
+        }
+        .stamp.visible { animation: stomp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes stomp {
+            0% { transform: translate(-50%, -50%) scale(3) rotate(-10deg); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 0.8; }
+        }
+
+        /* SEND BUTTON */
+        .send-btn {
+            width: 100%; margin-top: 25px;
+            background: var(--hp-brand); color: white;
+            padding: 16px; border-radius: 12px; border: none;
+            font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+        }
+        .send-btn:hover { background: var(--hp-brand-glow); transform: translateY(-2px); color: var(--hp-night); }
+
+        @media (max-width: 800px) {
+            .hp-body { grid-template-columns: 1fr; }
+            .hp-nav-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Hoppa Night Planner - Peacock Edition&lt;/title&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;link</p>
-<p class="p1"><span class="Apple-converted-space">    </span>href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&amp;display=swap"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>rel="stylesheet"</p>
-<p class="p1"><span class="Apple-converted-space">  </span>/&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-brand: #0891b2;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-brand-glow: #22d3ee;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-night: #0f172a;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-night-dark: #020617;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-glass: rgba(30, 41, 59, 0.7);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--hp-border: rgba(255, 255, 255, 0.1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--ticket-paper: #ffffff;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--text-light: #cbd5e1;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>* {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-sizing: border-box;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-family: "Open Sans", sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #f1f5f9;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-widget {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-width: 1100px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-night);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--hp-border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 55px 30px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: radial-gradient(circle at 50% -20%, #155e75 0%, #0f172a 60%, #020617 100%);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-title {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 34px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: linear-gradient(to bottom, white, #cbd5e1);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>-webkit-background-clip: text;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>-webkit-text-fill-color: transparent;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-desc {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #94a3b8;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.lang-bar {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>right: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.lang-btn {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 7px 15px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid rgba(255, 255, 255, 0.2);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(255, 255, 255, 0.08);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: rgba(255, 255, 255, 0.7);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.lang-btn.active {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-brand);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1.2fr 0.8fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-nav-grid {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-card {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-glass);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--hp-border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 16px 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: 0.25s;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-card:hover {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transform: translateY(-3px);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(30, 41, 59, 0.85);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-card.active {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-brand);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-color: var(--hp-brand-glow);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transform: translateY(-4px);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-icon {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 24px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hp-card-title {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing: 1px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #cbd5e1;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.section-label {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--hp-brand);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>input {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--hp-border);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(255, 255, 255, 0.05);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline: none;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.input-row {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.custom-input {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.custom-input.show {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: block;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.ticket {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: white;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 30px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--hp-night);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.ticket-top {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-night);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.t-title {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 28px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.t-emoji {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.ticket-grid {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-top: 2px dashed #e2e8f0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding-top: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align: left;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.t-lbl {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #94a3b8;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.t-val {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.send-btn {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 25px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-brand);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.send-btn:hover {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--hp-brand-glow);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--hp-night);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 850px) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>.hp-body {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>grid-template-columns: 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="hp-widget"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="hp-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="lang-bar"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="lang-btn active" data-lang="en"&gt;EN&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="lang-btn" data-lang="nl"&gt;NL&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="lang-btn" data-lang="fr"&gt;FR&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2 class="hp-title" id="head-title"&gt;Let's Go Out&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p class="hp-desc" id="head-desc"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>Choose an activity, pick a date, send the invite.</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="hp-body"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- LEFT --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="section-label"&gt;1. Choose Activity&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="hp-nav-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="hp-card" data-key="sport" data-emoji="🏸"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-icon"&gt;🏸&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-card-title"&gt;Sport&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="hp-card" data-key="meal" data-emoji="🍝"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-icon"&gt;🍝&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-card-title"&gt;Meal&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="hp-card" data-key="movie" data-emoji="🍿"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-icon"&gt;🍿&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-card-title"&gt;Movie&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="hp-card" data-key="custom" data-emoji="✨"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-icon"&gt;✨&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hp-card-title"&gt;You Choose&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input id="custom-txt" class="custom-input" placeholder="Type your custom plan..." /&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="section-label" style="margin-top:30px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>2. Details</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input type="date" id="date-in" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;input type="time" id="time-in" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input id="loc-in" placeholder="Location (e.g. Downtown)" /&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- RIGHT --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="ticket"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="ticket-top"&gt;OFFICIAL INVITE • ADMIT ONE&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="t-emoji" id="t-emoji"&gt;✨&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2 class="t-title" id="t-act"&gt;Select an Activity&lt;/h2&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="ticket-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-lbl"&gt;DATE&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-val" id="t-date"&gt;--/--/--&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-lbl"&gt;TIME&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-val" id="t-time"&gt;--:--&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-lbl"&gt;LOCATION&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="t-val" id="t-loc"&gt;TBD&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="send-btn" id="btn-send"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Copy Invite &amp; Open Instagram ➜</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener("DOMContentLoaded", () =&gt; {</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const igLink = "https://www.instagram.com/chakrabortyriya/";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let currentKey = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let currentEmoji = "✨";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function updateTicket() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const date = document.getElementById("date-in").value;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const time = document.getElementById("time-in").value;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const loc = document.getElementById("loc-in").value;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const custom = document.getElementById("custom-txt").value;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("t-date").innerText = date || "--/--/--";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("t-time").innerText = time || "--:--";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("t-loc").innerText = loc || "TBD";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (currentKey === "custom") {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>document.getElementById("t-act").innerText =</p>
-<p class="p1"><span class="Apple-converted-space">            </span>custom || "Your Custom Plan";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll(".hp-card").forEach(card =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>card.addEventListener("click", () =&gt; {</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>document.querySelectorAll(".hp-card")</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.forEach(c =&gt; c.classList.remove("active"));</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>card.classList.add("active");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>currentKey = card.dataset.key;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>currentEmoji = card.dataset.emoji;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>document.getElementById("t-emoji").innerText = currentEmoji;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (currentKey === "custom") {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById("custom-txt").classList.add("show");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById("t-act").innerText = "Your Custom Plan";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById("custom-txt").classList.remove("show");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById("t-act").innerText =</p>
-<p class="p1"><span class="Apple-converted-space">              </span>card.innerText.trim();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">          </span>updateTicket();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll("input").forEach(inp =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>inp.addEventListener("input", updateTicket);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById("btn-send").addEventListener("click", () =&gt; {</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!currentKey) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>alert("Select an activity first.");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const msg =</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"Here is your invite 🎟️\n\n" +</p>
-<p class="p1"><span class="Apple-converted-space">          </span>document.getElementById("t-act").innerText +</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"\nDate: " + document.getElementById("t-date").innerText +</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"\nTime: " + document.getElementById("t-time").innerText +</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"\nLocation: " + document.getElementById("t-loc").innerText;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>navigator.clipboard.writeText(msg).catch(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>prompt("Copy this invite manually:", msg);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.open(igLink, "_blank");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div class="hp-widget">
+    
+    <div class="hp-header">
+        <div class="hp-stars">
+            <div class="s-layer s-1"></div>
+            <div class="s-layer s-2"></div>
+        </div>
+        <div class="lang-bar">
+            <button class="lang-btn active" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('nl')">NL</button>
+            <button class="lang-btn" onclick="setLang('fr')">FR</button>
+        </div>
+        <div class="hp-head-content">
+            <h2 class="hp-title" id="head-title">Let's Go Out</h2>
+            <p class="hp-desc" id="head-desc">Choose an activity, pick a date, send the invite.</p>
+        </div>
+    </div>
+
+    <div class="hp-body">
+        
+        <div class="controls">
+            
+            <div>
+                <span class="section-label" id="lbl-act">1. Choose Activity</span>
+                <div class="hp-nav-grid">
+                    <div class="hp-card" onclick="selectAct('sport', '🏸', this)"><div class="hp-icon">🏸</div><span class="hp-card-title" data-key="sport">Sport</span></div>
+                    <div class="hp-card" onclick="selectAct('meal', '🍝', this)"><div class="hp-icon">🍝</div><span class="hp-card-title" data-key="meal">Meal</span></div>
+                    <div class="hp-card" onclick="selectAct('movie', '🍿', this)"><div class="hp-icon">🍿</div><span class="hp-card-title" data-key="movie">Movie</span></div>
+                    <div class="hp-card" onclick="selectAct('nature', '🌲', this)"><div class="hp-icon">🌲</div><span class="hp-card-title" data-key="nature">Nature</span></div>
+                    <div class="hp-card" onclick="selectAct('chill', '🏡', this)"><div class="hp-icon">🏡</div><span class="hp-card-title" data-key="chill">Chill</span></div>
+                    <div class="hp-card" onclick="selectAct('karaoke', '🎤', this)"><div class="hp-icon">🎤</div><span class="hp-card-title" data-key="karaoke">Karaoke</span></div>
+                    <div class="hp-card" onclick="selectAct('coffee', '☕', this)"><div class="hp-icon">☕</div><span class="hp-card-title" data-key="coffee">Coffee</span></div>
+                    <div class="hp-card" onclick="selectCustom(this)"><div class="hp-icon">✨</div><span class="hp-card-title" data-key="custom">You Choose</span></div>
+                </div>
+                <input type="text" id="custom-txt" class="custom-input" placeholder="Type your plan..." oninput="updateTicket()">
+            </div>
+
+            <div>
+                <span class="section-label" id="lbl-when">2. Details</span>
+                <div class="input-row">
+                    <input type="date" id="date-in" onchange="updateTicket()">
+                    <input type="time" id="time-in" onchange="updateTicket()">
+                </div>
+                <input type="text" id="loc-in" placeholder="Location (e.g. Downtown)" oninput="updateTicket()">
+            </div>
+
+        </div>
+
+        <div class="ticket-wrapper">
+            <div class="ticket">
+                <div class="ticket-top">OFFICIAL INVITE • ADMIT ONE</div>
+                
+                <div class="ticket-content">
+                    <div class="stamp" id="stamp-el">SENT!</div>
+                    
+                    <span class="hp-badge" id="t-mood">Select Vibe</span>
+                    <div class="t-emoji" id="t-emoji">✨</div>
+                    <h2 class="t-title" id="t-act">...</h2>
+                    
+                    <div class="ticket-grid">
+                        <div>
+                            <div class="t-lbl" id="lbl-date">DATE</div>
+                            <div class="t-val" id="t-date">--/--/--</div>
+                        </div>
+                        <div>
+                            <div class="t-lbl" id="lbl-time">TIME</div>
+                            <div class="t-val" id="t-time">--:--</div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <div class="t-lbl" id="lbl-loc">LOCATION</div>
+                            <div class="t-val" id="t-loc">TBD</div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <div class="t-lbl" id="lbl-dress">DRESS CODE</div>
+                            <div class="t-val" id="t-dress">Casual</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="send-btn" id="btn-send" onclick="sendInvite()">Print & Send Ticket ➔</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const igLink = "https://www.instagram.com/chakrabortyriya?igsh=YzU4am82Z3Zud3Bi&utm_source=qr";
+    let currentLang = 'en';
+    let currentKey = null;
+    let isCustom = false;
+    let currentEmoji = "✨";
+
+    // LANGUAGE DATA
+    const langData = {
+        en: {
+            title: "Let's Go Out",
+            desc: "Choose an activity, pick a date, send the invite.",
+            lblAct: "1. Choose Activity",
+            lblWhen: "2. Details",
+            lblDate: "DATE",
+            lblTime: "TIME",
+            lblLoc: "LOCATION",
+            lblDress: "DRESS CODE",
+            btnSend: "Print & Send Ticket ➔",
+            stamp: "SENT!",
+            msg: "Here is your ticket! 🎟️",
+            acts: {
+                sport: "Play Sport", meal: "Dinner/Lunch", movie: "Movie", nature: "Nature", 
+                chill: "Chill at Home", karaoke: "Karaoke", coffee: "Coffee/Drink", custom: "You Choose"
+            },
+            moods: {
+                sport: "Energetic", meal: "Foodie Heaven", movie: "Relaxed", nature: "Serene", 
+                chill: "Cozy", karaoke: "Wild", coffee: "Chatty", custom: "Mystery"
+            },
+            dress: {
+                sport: "Active Wear", meal: "Smart Casual", movie: "Comfy", nature: "Outdoor", 
+                chill: "Loungewear", karaoke: "Rockstar", coffee: "Casual", custom: "Your Choice"
+            }
+        },
+        nl: {
+            title: "Laten we gaan",
+            desc: "Kies een activiteit, prik een datum en verstuur.",
+            lblAct: "1. Kies Activiteit",
+            lblWhen: "2. Details",
+            lblDate: "DATUM",
+            lblTime: "TIJD",
+            lblLoc: "LOCATIE",
+            lblDress: "KLEDINGCODE",
+            btnSend: "Print & Verstuur ➔",
+            stamp: "VERSTUURD!",
+            msg: "Hier is je ticket! 🎟️",
+            acts: {
+                sport: "Sporten", meal: "Eten", movie: "Film", nature: "Natuur", 
+                chill: "Thuis Chillen", karaoke: "Karaoke", coffee: "Koffie", custom: "Kies Zelf"
+            },
+            moods: {
+                sport: "Energiek", meal: "Lekker Eten", movie: "Ontspannen", nature: "Rustig", 
+                chill: "Gezellig", karaoke: "Wild", coffee: "Gezellig", custom: "Mysterie"
+            },
+            dress: {
+                sport: "Sportkleding", meal: "Casual Chique", movie: "Comfortabel", nature: "Buiten", 
+                chill: "Huispak", karaoke: "Feestelijk", coffee: "Casual", custom: "Eigen Keuze"
+            }
+        },
+        fr: {
+            title: "On Sort ?",
+            desc: "Choisis l'activité, la date et envoie l'invitation.",
+            lblAct: "1. Activité",
+            lblWhen: "2. Détails",
+            lblDate: "DATE",
+            lblTime: "HEURE",
+            lblLoc: "LIEU",
+            lblDress: "TENUE",
+            btnSend: "Envoyer ➔",
+            stamp: "ENVOYÉ !",
+            msg: "Voici ton ticket ! 🎟️",
+            acts: {
+                sport: "Sport", meal: "Repas", movie: "Film", nature: "Nature", 
+                chill: "Détente", karaoke: "Karaoké", coffee: "Café", custom: "Ton Choix"
+            },
+            moods: {
+                sport: "Énergique", meal: "Gourmand", movie: "Détendu", nature: "Serein", 
+                chill: "Douillet", karaoke: "Fou", coffee: "Bavard", custom: "Mystère"
+            },
+            dress: {
+                sport: "Tenue de Sport", meal: "Chic Décontracté", movie: "Confortable", nature: "Extérieur", 
+                chill: "Décontracté", karaoke: "Star", coffee: "Simple", custom: "Ton Choix"
+            }
+        }
+    };
+
+    // LOGIC
+    function setLang(lang) {
+        currentLang = lang;
+        const t = langData[lang];
+
+        document.getElementById('head-title').innerText = t.title;
+        document.getElementById('head-desc').innerText = t.desc;
+        document.getElementById('lbl-act').innerText = t.lblAct;
+        document.getElementById('lbl-when').innerText = t.lblWhen;
+        
+        document.getElementById('lbl-date').innerText = t.lblDate;
+        document.getElementById('lbl-time').innerText = t.lblTime;
+        document.getElementById('lbl-loc').innerText = t.lblLoc;
+        document.getElementById('lbl-dress').innerText = t.lblDress;
+        document.getElementById('btn-send').innerText = t.btnSend;
+        document.getElementById('stamp-el').innerText = t.stamp;
+
+        document.querySelectorAll('.hp-card-title').forEach(el => {
+            const k = el.getAttribute('data-key');
+            el.innerText = t.acts[k];
+        });
+
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+
+        updateTicket();
+    }
+
+    function selectAct(key, emoji, btn) {
+        resetBtns();
+        btn.classList.add('active');
+        currentKey = key;
+        currentEmoji = emoji;
+        isCustom = false;
+        document.getElementById('custom-txt').classList.remove('show');
+        updateTicket();
+    }
+
+    function selectCustom(btn) {
+        resetBtns();
+        btn.classList.add('active');
+        currentKey = 'custom';
+        currentEmoji = "✨";
+        isCustom = true;
+        document.getElementById('custom-txt').classList.add('show');
+        updateTicket();
+    }
+
+    function resetBtns() {
+        document.querySelectorAll('.hp-card').forEach(b => b.classList.remove('active'));
+        document.getElementById('stamp-el').classList.remove('visible');
+    }
+
+    function updateTicket() {
+        const t = langData[currentLang];
+        
+        // Activity
+        if (isCustom) {
+            const val = document.getElementById('custom-txt').value;
+            document.getElementById('t-act').innerText = val ? val : t.acts['custom'];
+        } else if (currentKey) {
+            document.getElementById('t-act').innerText = t.acts[currentKey];
+        } else {
+            document.getElementById('t-act').innerText = "...";
+        }
+        document.getElementById('t-emoji').innerText = currentEmoji;
+
+        // Details
+        if(currentKey) {
+            document.getElementById('t-mood').innerText = t.moods[currentKey];
+            document.getElementById('t-dress').innerText = t.dress[currentKey];
+        }
+
+        const dateVal = document.getElementById('date-in').value;
+        document.getElementById('t-date').innerText = dateVal ? dateVal : "--/--/--";
+        
+        const timeVal = document.getElementById('time-in').value;
+        document.getElementById('t-time').innerText = timeVal ? timeVal : "--:--";
+
+        const locVal = document.getElementById('loc-in').value;
+        document.getElementById('t-loc').innerText = locVal ? locVal : "TBD";
+    }
+
+    function sendInvite() {
+        if(!currentKey) return alert("Please choose an activity!");
+
+        const stamp = document.getElementById('stamp-el');
+        stamp.classList.remove('visible');
+        void stamp.offsetWidth; 
+        stamp.classList.add('visible');
+
+        const t = langData[currentLang];
+        const act = document.getElementById('t-act').innerText;
+        const date = document.getElementById('t-date').innerText;
+        const time = document.getElementById('t-time').innerText;
+        const loc = document.getElementById('t-loc').innerText;
+        
+        const msg = `${t.msg}\nActivity: ${currentEmoji} ${act}\nWhen: ${date} at ${time}\nWhere: ${loc}\nLet's go!`;
+        
+        setTimeout(() => {
+            navigator.clipboard.writeText(msg).then(() => {
+                window.open(igLink, '_blank');
+            });
+        }, 600);
+    }
+</script>
+
 </body>
 </html>
